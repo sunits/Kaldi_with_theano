@@ -1,3 +1,6 @@
+# Author: Sunit Sivasankaran
+# Adapted from the MLP tutorial of the deeplearning.net site
+# Instituition : Inria - Nancy
 import os, sys
 import numpy as np
 import theano
@@ -75,9 +78,9 @@ class Layer(object):
                 lin_output = self.activation(lin_output.T).T
         elif not self.activation is None :
                 lin_output = self.activation(lin_output)
-    
+
         return lin_output
-                
+
 
 class MLP(object):
     def __init__(self, W_init, b_init, activations, activation_str=None):
@@ -194,7 +197,7 @@ class MLP(object):
         var = []
         for layer in self.layers:
             var.append(T.var(layer.W))
-        return var 
+        return var
 
     def save_model(self, save_dir, filename):
         '''

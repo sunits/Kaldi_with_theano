@@ -1,8 +1,10 @@
+# Author: Sunit Sivasankaran
+# Instituition : Inria - Nancy
 import os
 import sys
 import numpy as np
 import ipdb
-import tempfile 
+import tempfile
 
 kaldiPath_new = "/talc/multispeech/calcul/users/ssivasankaran/softwares/kaldi"
 kaldiPath_old = "/home/ssivasankaran/softwares/kaldi_nnet3_cpu"
@@ -15,7 +17,7 @@ class layer_def:
         self.layerSize = None
         self.activation = None
         self.activation_size = None
-    
+
     def setW(self,w):
         self.W = w
 
@@ -29,7 +31,7 @@ class layer_def:
         self.activation_size = activation_size
 
     def setLayerSize(self,layer_size):
-        self.layerSize = layer_size 
+        self.layerSize = layer_size
 
     def setParams(self, w, b,layer_size, activation_size, activation):
         self.b = np.asarray(b).reshape(len(b),1)
@@ -62,7 +64,7 @@ def convertModeltoText(modelPath, kaldi_ver=0):
     return featFile[-1]
 
 
-def readMainModel(modelFileName, kaldi_ver=0):    
+def readMainModel(modelFileName, kaldi_ver=0):
     if not kaldi_ver == 0:
         return readMainModelKaldi2016(modelFileName)
     all_layers = []
@@ -71,33 +73,33 @@ def readMainModel(modelFileName, kaldi_ver=0):
     line = fid.readline().strip() #  %<AffineTransform> XXX YYY
     while not line == '</Nnet>':
         size = [int(x) for x in line.strip().split()[1:]]
-        line = fid.readline().strip() 
-    
+        line = fid.readline().strip()
+
         layer = layer_def()
         w = []
         # print size
-    
+
         for neuron in xrange(size[0]-1):
             line = fid.readline().strip()
             transform = [float(x) for x in line.split()]
             w.append(transform)
-    
+
         line = fid.readline().strip()
         line = line.replace(']','')
         transform = [float(x) for x in line.split()]
         w.append(transform)
-    
+
         line = fid.readline().strip()
         line = line.replace('[','')
         line = line.replace(']','')
         bias = [float(x) for x in line.split()]
-        
-        line = fid.readline().strip() 
+
+        line = fid.readline().strip()
         activation = line.split()[0].replace('<','').replace('>','')
         activation_size = [int(x) for x in line.strip().split()[1:]]
-    
+
         layer.setParams(w,bias, size, activation_size, activation)
-        line = fid.readline().strip() 
+        line = fid.readline().strip()
         all_layers.append(layer)
 
     # print len(all_layers)
@@ -128,7 +130,7 @@ def readFeatTransform(fileName, kaldi_ver=0):
     featLayer.setParams(feat_splice_index, dim, shift, scale)
     return featLayer
 
-def readMainModelKaldi2016(modelFileName):    
+def readMainModelKaldi2016(modelFileName):
     all_layers = []
     fid = open(modelFileName)
     junk = fid.readline() # Nnet
@@ -136,10 +138,10 @@ def readMainModelKaldi2016(modelFileName):
     while not line == '</Nnet>':
 # Get the size
         size = [int(x) for x in line.strip().split()[1:]]
-# <LearnRateCoeff>... 
-        line = fid.readline() 
-# [        
-        line = fid.readline() 
+# <LearnRateCoeff>...
+        line = fid.readline()
+# [
+        line = fid.readline()
 
         layer = layer_def()
         w = []
@@ -149,31 +151,31 @@ def readMainModelKaldi2016(modelFileName):
             line = fid.readline().strip()
             transform = [float(x) for x in line.split()]
             w.append(transform)
-    
+
         line = fid.readline().strip()
         line = line.replace(']','')
         transform = [float(x) for x in line.split()]
         w.append(transform)
-    
+
 # Get the  bias
         line = fid.readline().strip()
         line = line.replace('[','')
         line = line.replace(']','')
         bias = [float(x) for x in line.split()]
-        
-# New kaldi has End component string. Remove that        
-        line = fid.readline() 
+
+# New kaldi has End component string. Remove that
+        line = fid.readline()
 
 # Get activation type
-        line = fid.readline().strip() 
+        line = fid.readline().strip()
         activation = line.split()[0].replace('<','').replace('>','')
         activation_size = [int(x) for x in line.strip().split()[1:]]
 
-# New kaldi has End component string after activation type. Remove that        
-        line = fid.readline() 
-    
+# New kaldi has End component string after activation type. Remove that
+        line = fid.readline()
+
         layer.setParams(w, bias, size, activation_size, activation)
-        line = fid.readline().strip() 
+        line = fid.readline().strip()
         all_layers.append(layer)
 
     # print len(all_layers)
@@ -188,20 +190,20 @@ def readFeatTransformKaldi2016(fileName):
     dim = [int(x) for x in line.strip().split()[1:]]
 
 # Splicing index
-    line = fid.readline().strip() 
+    line = fid.readline().strip()
     line = line.replace('[','').replace(']','')
     feat_splice_index = [int(x) for x in line.strip().split()]
-# New kaldi has End component string. Remove that        
-    line = fid.readline() 
+# New kaldi has End component string. Remove that
+    line = fid.readline()
 
 # Get the add component
-    line = fid.readline().strip() 
+    line = fid.readline().strip()
     line = fid.readline().strip().split('[')[-1]
     line = line.replace(']','')
     shift = [float(x) for x in line.split()]
 
-# New kaldi has End component string. Remove that        
-    line = fid.readline() 
+# New kaldi has End component string. Remove that
+    line = fid.readline()
 
 # Get the scale component
     line = fid.readline()

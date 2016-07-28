@@ -1,3 +1,5 @@
+# Author: Sunit Sivasankaran
+# Instituition : Inria - Nancy
 echo `hostname`
 GPU='gpu0'
 

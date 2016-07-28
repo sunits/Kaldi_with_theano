@@ -1,3 +1,5 @@
+# Author: Sunit Sivasankaran
+# Instituition : Inria - Nancy
 import tempfile
 import os
 import sys
@@ -14,7 +16,7 @@ class readAlignments:
         self.align_path = align_path
         self.align_dictionary = {}
         tempFile = tempfile.mkstemp()
-            
+
         os.system('ali-to-pdf ' + model +' \"ark:gunzip -c ' + align_path + '/ali.*.gz |\" ark,t:' + tempFile[-1])
         with open(tempFile[-1]) as fid:
             for line in fid:
@@ -32,7 +34,7 @@ class readFeatures:
         self.done = False
 
     def lineToVector(self, featEntry):
-           return [float(feat_value) for feat_value in featEntry.strip().split() 
+           return [float(feat_value) for feat_value in featEntry.strip().split()
                 if  re.search('[0-9]+\.*[0-9]*', feat_value)]
 
     def getNextWavData(self):
@@ -55,7 +57,7 @@ class readFeatures:
 
     def done(self):
         self.fid.close()
-    
+
     def restart(self):
         self.fid.seek(0)
         self.done = False
@@ -93,12 +95,12 @@ class kaldiFunctionlity:
 
     def __init__(self):
         self.latgenFasterMappedOptions = {}
-        self.latgenFasterMappedOptions['--min-active'] = 200 
-        self.latgenFasterMappedOptions['--max-active'] = 7000 
+        self.latgenFasterMappedOptions['--min-active'] = 200
+        self.latgenFasterMappedOptions['--max-active'] = 7000
         self.latgenFasterMappedOptions['--max-mem'] = 50000000
         self.latgenFasterMappedOptions['--beam'] = 18.0
-        self.latgenFasterMappedOptions['--lattice-beam'] = 10.0 
-        self.latgenFasterMappedOptions['--acoustic-scale'] = 0.10 
+        self.latgenFasterMappedOptions['--lattice-beam'] = 10.0
+        self.latgenFasterMappedOptions['--acoustic-scale'] = 0.10
         self.latgenFasterMappedOptions['--allow-partial'] = "true"
 
         self.latticeScaleOptions = {}
@@ -107,12 +109,12 @@ class kaldiFunctionlity:
     def latgenFasterMapped(self,options, mdl_file, hclg, rSpecifier, wSpecifier):
         for ele in options:
             self.latgenFasterMappedOptions[ele] = options[ele]
-        self.cmd = "latgen-faster-mapped "             
+        self.cmd = "latgen-faster-mapped "
 
         for ele in self.latgenFasterMappedOptions:
             self.cmd += ele + '=' + self.latgenFasterMappedOptions[ele] + ' '
 
-        self.cmd += mdl_file + ' ' + hclg + ' ark,t:' + rSpecifier 
+        self.cmd += mdl_file + ' ' + hclg + ' ark,t:' + rSpecifier
         self.cmd += ' \"ark:|gzip -c >' + wSpecifier + '\"'
         print self.cmd
         os.system(self.cmd)
@@ -121,14 +123,14 @@ class kaldiFunctionlity:
         for ele in options:
             self.latticeScaleOptions[ele] = options[ele]
         self.cmd = "lattice-scale "
-        
+
         for ele in self.latticeScaleOptions:
             self.cmd += str(ele) + '=' + str(self.latticeScaleOptions[ele]) + ' '
-       
+
         self.cmd += '\"ark:gunzip -c ' + lat_file + '|\" ark:- | lattice-add-penalty '
-        self.cmd += '--word-ins-penalty=0.0 ark:- ark:- | lattice-best-path --word-symbol-table=' + WList 
+        self.cmd += '--word-ins-penalty=0.0 ark:- ark:- | lattice-best-path --word-symbol-table=' + WList
         self.cmd += ' ark:- ark,t:' + outFile
-        print self.cmd 
+        print self.cmd
         os.system(self.cmd)
 
 class readTree:
@@ -141,4 +143,4 @@ class readTree:
             for ele in fid:
                 text, information = ele.strip().split()
                 self.info[text] = int(information)
-        os.system('rm '+self.treeFile[-1])                
+        os.system('rm '+self.treeFile[-1])

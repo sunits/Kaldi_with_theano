@@ -1,7 +1,9 @@
+# Author: Sunit Sivasankaran
+# Instituition : Inria - Nancy
 from optparse import OptionParser
 import MLP
 import theano
-import readKaldiDNN 
+import readKaldiDNN
 import sys
 import readKaldiData
 import h5py
@@ -60,12 +62,12 @@ def define_nn(n_input_dims, n_hidden_dims, n_hidden_layer, n_output_dims, W_init
         for n_input, n_output in zip(layer_sizes[:-1], layer_sizes[1:]):
             if activations[act_count] == T.tanh:
                 W_init.append(np.random.RandomState(RDMSEED).uniform(
-                    low=-np.sqrt(6. / (n_output + n_input)), 
+                    low=-np.sqrt(6. / (n_output + n_input)),
                     high=np.sqrt(6. / (n_output + n_input)),
                     size=(n_output, n_input) ) )
             elif activations[act_count] == T.nnet.sigmoid:
                 W_init.append(np.random.RandomState(RDMSEED).uniform(
-                    low=-4*np.sqrt(6. / (n_output + n_input)), 
+                    low=-4*np.sqrt(6. / (n_output + n_input)),
                     high=4*np.sqrt(6. / (n_output + n_input)),
                     size=(n_output, n_input) ) )
             elif activations[act_count] == T.nnet.relu:
@@ -74,7 +76,7 @@ def define_nn(n_input_dims, n_hidden_dims, n_hidden_layer, n_output_dims, W_init
                 W_init.append(np.random.RandomState(RDMSEED).normal(0., 0.01, (n_output, n_input)))
             act_count += 1
             b_init.append(np.zeros(n_output))
-    
+
         #mlp = MLP.MLP_wDO(W_init, b_init, activations)
         mlp = MLP.MLP(W_init, b_init, activations)
     else:
@@ -107,7 +109,7 @@ def main(args=None):
     #    print usage
     #    exit(1)
     (options,args) = parser.parse_args(args=args)
-        
+
 
     feature_file = args[1]
     model = args[2]
@@ -143,14 +145,14 @@ def main(args=None):
 #        b.append(np.squeeze(ele.b))
 #        assert ele.activation in activation_dict, "Did not understand the activation type"
 #        activations.append(activation_dict[ele.activation])
-    
+
     # Remove the last Softmax layer if needed
     if options.no_softmax :
         activations[-1] = None
 
     mlp = define_nn_preset(W,b,activations)
     # mlp = define_nn(440, 2048, 7, 1983)
-                
+
     if not options.feature_transform == None:
         feat_trans_txt = readKaldiDNN.convertModeltoText(options.feature_transform)
         feat_trans = readKaldiDNN.readFeatTransform(feat_trans_txt)
@@ -172,8 +174,8 @@ def main(args=None):
     # Do mean and variance normalization if required
     if not options.feature_transform == None:
         final_mlp_input = ( mlp_input + np.array(shift)[...,None] ) * np.array(scale)[...,None]
-        
-    # MLP output        
+
+    # MLP output
     tr_dnn_output = mlp.output(final_mlp_input)
     test_model = theano.function(inputs=[mlp_input], outputs=tr_dnn_output)
 
@@ -185,7 +187,7 @@ def main(args=None):
         prob_values = np.transpose(test_model(np.transpose(feats)))
         if options.apply_log:
             prob_values = np.log(prob_values + np.finfo(float).eps)
-        # Include the priors            
+        # Include the priors
         if not options.class_frame_counts == None:
             prob_values = prob_values - class_prior
         prob_values = np.around(prob_values, decimals=5)
@@ -198,4 +200,4 @@ def main(args=None):
 
 if __name__=="__main__":
     main(sys.argv)
-    
+
