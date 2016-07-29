@@ -1,4 +1,4 @@
-# Kaldi_stuff
+# Kaldi_stuff/nnet1_with_theano
 
 This is raw version of Kaldi nnet1 DNN training using theano. The following are the dependencies:
 
